@@ -36,4 +36,8 @@ public class GestorDeAgendamentos {
             }
         }
     }
+
+    public List<Agendamento> getListaDeAgendamentos() {
+        return listaDeAgendamentos;
+    }
 }

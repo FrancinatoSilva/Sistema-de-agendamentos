@@ -51,7 +51,6 @@ public class Main {
                 System.out.println("Escolha um cliente para o agendamento: ");
                 gestorDeClientes.listarClientes();
 
-                System.out.print("Número do cliente: ");
                 int indiceCliente = sc.nextInt() - 1;
                 sc.nextLine();
 
@@ -73,6 +72,41 @@ public class Main {
                     gestorDeAgendamentos.agendarHorario(novoAgendamento);
                 }
                 break;
+
+            case 4:
+                gestorDeAgendamentos.listarAgendamentos();
+                System.out.println();
+                break;
+
+            case 5:
+                System.out.println("Escolha um cliente para cancelar seu agendamento: ");
+                gestorDeClientes.listarClientes();
+
+                indiceCliente = sc.nextInt() - 1;
+                sc.nextLine();
+
+                if (indiceCliente < 0 || indiceCliente >= gestorDeClientes.getListaDeClientes().size()) {
+                    System.out.println("Cliente inválido!");
+                } else {
+                    String nomeCliente = gestorDeClientes.getListaDeClientes().get(indiceCliente).getNome();
+
+                    boolean removido = false;
+                    for (int i = 0; i < gestorDeAgendamentos.getListaDeAgendamentos().size(); i++) {
+                        Agendamento agendamento = gestorDeAgendamentos.getListaDeAgendamentos().get(i);
+
+                        if (agendamento.getCliente().getNome().equalsIgnoreCase(nomeCliente)) {
+                            gestorDeAgendamentos.getListaDeAgendamentos().remove(i);
+                            removido = true;
+                            System.out.println("Agendamento de " + nomeCliente + " foi cancelado.");
+                            break;
+                        }
+                    }
+
+                    if (!removido) {
+                        System.out.println("Nenhum agendamento encontrado para " + nomeCliente);
+                    }
+                }
+
 
             case 0:
                 System.out.println("Encerrando o sistema...");
