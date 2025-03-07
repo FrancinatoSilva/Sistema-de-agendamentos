@@ -1,6 +1,7 @@
 package services;
 
 import models.Agendamento;
+import models.Cliente;
 
 import java.util.ArrayList;
 import java.util.List;
