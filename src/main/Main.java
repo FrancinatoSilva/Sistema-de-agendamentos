@@ -4,6 +4,7 @@ import models.Agendamento;
 import models.Cliente;
 import services.GestorDeAgendamentos;
 import services.GestorDeClientes;
+import services.GestorDeRegras;
 
 import java.util.Scanner;
 
@@ -13,109 +14,118 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         GestorDeClientes gestorDeClientes = new GestorDeClientes();
         GestorDeAgendamentos gestorDeAgendamentos = new GestorDeAgendamentos();
+        GestorDeRegras gestorDeRegras = new GestorDeRegras();
 
-    int opcaoDesejada;
+        int opcaoDesejada;
 
-    do {
-        System.out.println("-------Serviços disponíveis-------");
-        System.out.println("1 - Cadastrar Cliente");
-        System.out.println("2 - Listar Clientes");
-        System.out.println("3 - Agendar Horário");
-        System.out.println("4 - Consultar Agendamentos");
-        System.out.println("5 - Cancelar Agendamentos");
-        System.out.println("0 - Sair");
-        System.out.println();
-        System.out.print("Opção desejada: ");
+        do {
+            System.out.println("-------Serviços disponíveis-------");
+            System.out.println("1 - Cadastrar Cliente");
+            System.out.println("2 - Listar Clientes");
+            System.out.println("3 - Agendar Horário");
+            System.out.println("4 - Consultar Agendamentos");
+            System.out.println("5 - Cancelar Agendamentos");
+            System.out.println("0 - Sair");
+            System.out.println();
+            System.out.print("Opção desejada: ");
 
-        opcaoDesejada = sc.nextInt();
-        sc.nextLine();
+            opcaoDesejada = sc.nextInt();
+            sc.nextLine();
 
-        switch (opcaoDesejada) {
-            case 1:
-                System.out.print("Nome do cliente: ");
-                String nome = sc.nextLine();
+            switch (opcaoDesejada) {
+                case 1:
+                    System.out.print("Nome do cliente: ");
+                    String nome = sc.nextLine();
 
-                System.out.print("Telefone do cliente: ");
-                String telefone = sc.nextLine();
+                    System.out.print("Telefone do cliente: ");
+                    String telefone = sc.nextLine();
 
-                Cliente novoCliente = new Cliente(nome, telefone);
-                gestorDeClientes.cadastrarCliente(novoCliente);
-                break;
+                    Cliente novoCliente = new Cliente(nome, telefone);
+                    gestorDeClientes.cadastrarCliente(novoCliente);
+                    break;
 
-            case 2:
-                gestorDeClientes.listarClientes();
-                System.out.println();
-                break;
+                case 2:
+                    gestorDeClientes.listarClientes();
+                    System.out.println();
+                    break;
 
-            case 3:
-                System.out.println("Escolha um cliente para o agendamento: ");
-                gestorDeClientes.listarClientes();
+                case 3:
+                    System.out.println("Escolha um cliente para o agendamento: ");
+                    gestorDeClientes.listarClientes();
 
-                int indiceCliente = sc.nextInt() - 1;
-                sc.nextLine();
+                    System.out.print("Nome do cliente: ");
+                    String nomeCliente = sc.nextLine();
 
-                if (indiceCliente < 0 || indiceCliente >= gestorDeClientes.getListaDeClientes().size()) {
-                    System.out.println("Cliente inválido!");
-                } else {
-                    Cliente clienteSelecionado = gestorDeClientes.getListaDeClientes().get(indiceCliente);
+                    if (!gestorDeRegras.clienteExiste(nomeCliente, gestorDeClientes.getListaDeClientes())) {
+                        System.out.println("Erro: Cliente não encontrado! Cadastre o cliente antes de agendar.");
+                        break;
+                    }
 
                     System.out.print("Data (dd/mm/aaaa): ");
                     String data = sc.nextLine();
 
+                    if (!gestorDeRegras.dataValida(data)) {
+                        System.out.println("Erro: Data inválida! Escolha uma data a partir de hoje.");
+                        break;
+                    }
+
                     System.out.print("Hora (hh:mm): ");
                     String hora = sc.nextLine();
+
+                    if (gestorDeRegras.horarioOcupado(data, hora, gestorDeAgendamentos.getListaDeAgendamentos())) {
+                        System.out.println("Erro: Horário já está ocupado! Escolha outro horário.");
+                        break;
+                    }
 
                     System.out.print("Serviço: ");
                     String servico = sc.nextLine();
 
-                    Agendamento novoAgendamento = new Agendamento(clienteSelecionado, data, hora, servico);
-                    gestorDeAgendamentos.agendarHorario(novoAgendamento);
-                }
-                break;
-
-            case 4:
-                gestorDeAgendamentos.listarAgendamentos();
-                System.out.println();
-                break;
-
-            case 5:
-                System.out.println("Escolha um cliente para cancelar seu agendamento: ");
-                gestorDeClientes.listarClientes();
-
-                indiceCliente = sc.nextInt() - 1;
-                sc.nextLine();
-
-                if (indiceCliente < 0 || indiceCliente >= gestorDeClientes.getListaDeClientes().size()) {
-                    System.out.println("Cliente inválido!");
-                } else {
-                    String nomeCliente = gestorDeClientes.getListaDeClientes().get(indiceCliente).getNome();
-
-                    boolean removido = false;
-                    for (int i = 0; i < gestorDeAgendamentos.getListaDeAgendamentos().size(); i++) {
-                        Agendamento agendamento = gestorDeAgendamentos.getListaDeAgendamentos().get(i);
-
-                        if (agendamento.getCliente().getNome().equalsIgnoreCase(nomeCliente)) {
-                            gestorDeAgendamentos.getListaDeAgendamentos().remove(i);
-                            removido = true;
-                            System.out.println("Agendamento de " + nomeCliente + " foi cancelado.");
+                    Cliente clienteSelecionado = null;
+                    for (Cliente c : gestorDeClientes.getListaDeClientes()) {
+                        if (c.getNome().equalsIgnoreCase(nomeCliente)) {
+                            clienteSelecionado = c;
                             break;
                         }
                     }
 
-                    if (!removido) {
-                        System.out.println("Nenhum agendamento encontrado para " + nomeCliente);
+                    if (clienteSelecionado != null) {
+                        Agendamento novoAgendamento = new Agendamento(clienteSelecionado, data, hora, servico);
+                        gestorDeAgendamentos.agendarHorario(novoAgendamento);
+                        System.out.println("Agendamento realizado com sucesso!");
                     }
-                }
+                    break;
 
+                case 4:
+                    gestorDeAgendamentos.listarAgendamentos();
+                    System.out.println();
+                    break;
 
-            case 0:
-                System.out.println("Encerrando o sistema...");
-                break;
+                case 5:
+                    System.out.print("Informe o nome do cliente para cancelar o agendamento: ");
+                    nomeCliente = sc.nextLine();
 
-            default:
-                System.out.println("Opção inválida, tente novamente.");
-        }
-    } while (opcaoDesejada != 0);
+                    System.out.print("Informe a data do agendamento a cancelar (dd/mm/aaaa): ");
+                    String dataAgendamento = sc.nextLine();
+
+                    boolean sucesso = gestorDeRegras.cancelarAgendamento(
+                            nomeCliente, dataAgendamento, gestorDeAgendamentos.getListaDeAgendamentos()
+                    );
+
+                    if (sucesso) {
+                        System.out.println("Agendamento de " + nomeCliente + " foi cancelado.");
+                    } else {
+                        System.out.println("Nenhum agendamento encontrado para " + nomeCliente + " na data " + dataAgendamento);
+                    }
+                    break;
+
+                case 0:
+                    System.out.println("Encerrando o sistema...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida, tente novamente.");
+            }
+        } while (opcaoDesejada != 0);
 
         sc.close();
     }

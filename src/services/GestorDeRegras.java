@@ -34,5 +34,15 @@ public class GestorDeRegras {
         return false;
     }
 
+    public boolean cancelarAgendamento(String nomeCliente, String data, List<Agendamento> agendamentos) {
+        for (Agendamento agendamento : agendamentos) {
+            if (agendamento.getCliente().getNome().equalsIgnoreCase(nomeCliente) && agendamento.getData().equals(data)) {
+                agendamentos.remove(agendamento);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
