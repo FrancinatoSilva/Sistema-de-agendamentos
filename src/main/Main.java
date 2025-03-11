@@ -5,7 +5,10 @@ import models.Cliente;
 import services.GestorDeAgendamentos;
 import services.GestorDeClientes;
 import services.GestorDeRegras;
+import utils.ArquivoUtils;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -15,6 +18,19 @@ public class Main {
         GestorDeClientes gestorDeClientes = new GestorDeClientes();
         GestorDeAgendamentos gestorDeAgendamentos = new GestorDeAgendamentos();
         GestorDeRegras gestorDeRegras = new GestorDeRegras();
+
+
+        try {
+            List<Cliente> clientesCarregados = ArquivoUtils.carregarClientes("clientes.csv");
+            List<Agendamento> agendamentosCarregados = ArquivoUtils.carregarAgendamentos("agendamentos.csv");
+
+            gestorDeClientes.setListaDeClientes(clientesCarregados);
+            gestorDeAgendamentos.setListaDeAgendamentos(agendamentosCarregados);
+
+            System.out.println("Dados carregados com sucesso!");
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar dados: " + e.getMessage());
+        }
 
         int opcaoDesejada;
 
@@ -42,6 +58,7 @@ public class Main {
 
                     Cliente novoCliente = new Cliente(nome, telefone);
                     gestorDeClientes.cadastrarCliente(novoCliente);
+                    salvarDados(gestorDeClientes, gestorDeAgendamentos);
                     break;
 
                 case 2:
@@ -91,7 +108,7 @@ public class Main {
                     if (clienteSelecionado != null) {
                         Agendamento novoAgendamento = new Agendamento(clienteSelecionado, data, hora, servico);
                         gestorDeAgendamentos.agendarHorario(novoAgendamento);
-                        System.out.println("Agendamento realizado com sucesso!");
+                        salvarDados(gestorDeClientes, gestorDeAgendamentos);
                     }
                     break;
 
@@ -113,6 +130,7 @@ public class Main {
 
                     if (sucesso) {
                         System.out.println("Agendamento de " + nomeCliente + " foi cancelado.");
+                        salvarDados(gestorDeClientes, gestorDeAgendamentos);
                     } else {
                         System.out.println("Nenhum agendamento encontrado para " + nomeCliente + " na data " + dataAgendamento);
                     }
@@ -120,6 +138,7 @@ public class Main {
 
                 case 0:
                     System.out.println("Encerrando o sistema...");
+                    salvarDados(gestorDeClientes, gestorDeAgendamentos);
                     break;
 
                 default:
@@ -128,5 +147,15 @@ public class Main {
         } while (opcaoDesejada != 0);
 
         sc.close();
+    }
+
+    private static void salvarDados(GestorDeClientes gestorDeClientes, GestorDeAgendamentos gestorDeAgendamentos) {
+        try {
+            ArquivoUtils.salvarClientes(gestorDeClientes.getListaDeClientes(), "clientes.csv");
+            ArquivoUtils.salvarAgendamentos(gestorDeAgendamentos.getListaDeAgendamentos(), "agendamentos.csv");
+            System.out.println("Dados salvos com sucesso!");
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar dados: " + e.getMessage());
+        }
     }
 }

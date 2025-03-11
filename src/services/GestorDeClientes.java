@@ -1,7 +1,6 @@
 package services;
 
 import models.Cliente;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,5 +32,9 @@ public class GestorDeClientes {
 
     public List<Cliente> getListaDeClientes() {
         return listaDeClientes;
+    }
+
+    public void setListaDeClientes(List<Cliente> clientes) {
+        this.listaDeClientes = clientes;
     }
 }

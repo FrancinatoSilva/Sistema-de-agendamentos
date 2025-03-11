@@ -1,8 +1,6 @@
 package services;
 
 import models.Agendamento;
-import models.Cliente;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,6 @@ public class GestorDeAgendamentos {
 
     public GestorDeAgendamentos() {
         this.listaDeAgendamentos = new ArrayList<>();
-
     }
 
     public void agendarHorario(Agendamento agendamento) {
@@ -40,5 +37,9 @@ public class GestorDeAgendamentos {
 
     public List<Agendamento> getListaDeAgendamentos() {
         return listaDeAgendamentos;
+    }
+
+    public void setListaDeAgendamentos(List<Agendamento> agendamentos) {
+        this.listaDeAgendamentos = agendamentos;
     }
 }
