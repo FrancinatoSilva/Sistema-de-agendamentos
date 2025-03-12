@@ -37,4 +37,15 @@ public class GestorDeClientes {
     public void setListaDeClientes(List<Cliente> clientes) {
         this.listaDeClientes = clientes;
     }
+
+    public boolean removerCliente(String telefone) {
+        return listaDeClientes.removeIf(cliente -> cliente.getTelefone().equals(telefone));
+    }
+
+    public Cliente buscarClientePorTelefone(String telefone) {
+        return listaDeClientes.stream()
+                .filter(c -> c.getTelefone().equals(telefone))
+                .findFirst()
+                .orElse(null);
+    }
 }

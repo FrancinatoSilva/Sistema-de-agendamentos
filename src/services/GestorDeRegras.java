@@ -44,5 +44,8 @@ public class GestorDeRegras {
         return false;
     }
 
+    public boolean clienteTemAgendamentos(String telefone, List<Agendamento> agendamentos) {
+        return agendamentos.stream()
+                .anyMatch(a -> a.getCliente().getTelefone().equals(telefone));
+    }
 }
-
